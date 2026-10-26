@@ -1,0 +1,37 @@
+---
+import { topics } from '../data/site';
+import Icon from './Icon.astro';
+---
+<form name="kontakt" method="POST" action="/danke/" data-netlify="true" netlify-honeypot="website" id="contact-form">
+  <input type="hidden" name="form-name" value="kontakt"/>
+  <p class="honeypot" aria-hidden="true"><label>Dieses Feld bitte leer lassen<input name="website" tabindex="-1" autocomplete="off"/></label></p>
+  <p class="form-intro">Die mit * markierten Felder brauchen wir für deine Anfrage.</p>
+  <div class="form-row"><label>Dein Name *<input name="name" autocomplete="name" required maxlength="120" placeholder="Vor- und Nachname"/></label><label>Deine E-Mail *<input type="email" name="email" autocomplete="email" required maxlength="254" placeholder="du@beispiel.de"/></label></div>
+  <label>Worum geht’s? *<select name="thema" id="topic" required><option value="" disabled selected>Bitte auswählen</option>{topics.map(topic => <option>{topic}</option>)}</select></label>
+  <label>Deine Nachricht *<textarea name="nachricht" required minlength="10" maxlength="5000" rows="5" placeholder="Wie können wir dir helfen?"></textarea></label>
+  <p class="form-privacy">Wir verwenden deine Angaben zur Bearbeitung deiner Anfrage. Informationen dazu findest du in unserer <a href="/datenschutz/">Datenschutzerklärung</a>.</p>
+  <button class="button button-gold" type="submit">Nachricht senden <Icon/></button>
+  <p id="form-status" class="form-status" role="status" aria-live="polite"></p>
+</form>
+<script>
+  const form = document.querySelector<HTMLFormElement>('#contact-form');
+  const status = document.querySelector<HTMLElement>('#form-status');
+  const local = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
+  if (local && status) status.textContent = 'Lokale Vorschau: Der Formularversand wird erst auf Netlify aktiviert. E-Mail und WhatsApp funktionieren bereits.';
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!status) return;
+    if (local) { status.textContent = 'In der lokalen Vorschau wird nichts versendet. Bitte nutze E-Mail oder WhatsApp.'; return; }
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    if (button) button.disabled = true;
+    status.textContent = 'Deine Nachricht wird gesendet …';
+    try {
+      const fields = new URLSearchParams();
+      new FormData(form).forEach((value, key) => fields.append(key, String(value)));
+      const response = await fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: fields.toString() });
+      if (!response.ok) throw new Error('Versand fehlgeschlagen');
+      window.location.assign('/danke/');
+    } catch { status.textContent = 'Deine Nachricht konnte nicht gesendet werden. Bitte versuche es erneut oder schreibe an info@snackostore.de.'; if(button) button.disabled = false; }
+  });
+  document.querySelectorAll<HTMLAnchorElement>('[data-topic]').forEach(link => link.addEventListener('click', () => { const select = document.querySelector<HTMLSelectElement>('#topic'); if(select) select.value = link.dataset.topic ?? ''; }));
+</script>

@@ -1,0 +1,28 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+[build.environment]
+  NODE_VERSION = "22"
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "DENY"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+[[redirects]]
+  from = "/standorte"
+  to = "/#standort"
+  status = 301
+[[redirects]]
+  from = "/kontakt"
+  to = "/#kontakt"
+  status = 301
+[[redirects]]
+  from = "/partner"
+  to = "/#standort-anbieten"
+  status = 301
+[[redirects]]
+  from = "/über-uns"
+  to = "/"
+  status = 301

@@ -1,0 +1,28 @@
+---
+const photos = [
+  { src: '/images/store-front-1920.webp', alt: 'Frontale Außenansicht des Snackostore in Stockheim mit Eingang und Snackostore-Schild', caption: 'STOCKHEIM, WIR SIND DA.' },
+  { src: '/images/gallery-entrance.webp', alt: 'Eingang des Snackostore mit Hinweis auf die durchgehenden Öffnungszeiten', caption: 'REINKOMMEN. AUCH NACH FEIERABEND.' },
+  { src: '/images/gallery-side.webp', alt: 'Snackostore aus einer zweiten Außenperspektive', caption: 'DEIN STORE. AUS JEDEM BLICKWINKEL.' },
+];
+---
+<section class="hero-visual store-gallery" aria-label="Einblicke in unseren Store" aria-roledescription="Karussell">
+  <div class="gallery-track" tabindex="0" aria-label="Storefotos, mit den Pfeiltasten blättern">
+    {photos.map((photo, index) => <figure class="gallery-slide" role="group" aria-roledescription="Bild" aria-label={`${index + 1} von ${photos.length}`}><img src={photo.src} alt={photo.alt} width="1100" height="1516" loading={index === 0 ? 'eager' : 'lazy'} fetchpriority={index === 0 ? 'high' : 'auto'}/><figcaption>{photo.caption}</figcaption></figure>)}
+  </div>
+  <div class="open-badge"><strong>24/7</strong><span>JEDEN TAG.<br/>JEDE NACHT.</span></div>
+  <div class="gallery-controls"><button type="button" data-gallery-prev aria-label="Vorheriges Storefoto">←</button><span class="gallery-counter" aria-live="polite" aria-atomic="true">01 / 03</span><button type="button" data-gallery-next aria-label="Nächstes Storefoto">→</button></div>
+</section>
+<script>
+  document.querySelectorAll<HTMLElement>('.store-gallery').forEach(gallery => {
+    const track = gallery.querySelector<HTMLElement>('.gallery-track');
+    const counter = gallery.querySelector<HTMLElement>('.gallery-counter');
+    if (!track || !counter) return;
+    const count = track.children.length;
+    const current = () => Math.round(track.scrollLeft / track.clientWidth);
+    const move = (step: number) => track.scrollTo({left: ((current() + step + count) % count) * track.clientWidth, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'});
+    gallery.querySelector('[data-gallery-prev]')?.addEventListener('click', () => move(-1));
+    gallery.querySelector('[data-gallery-next]')?.addEventListener('click', () => move(1));
+    track.addEventListener('keydown', event => { if(event.key === 'ArrowRight' || event.key === 'ArrowLeft') { event.preventDefault(); move(event.key === 'ArrowRight' ? 1 : -1); } });
+    track.addEventListener('scroll', () => { counter.textContent = `${String(current() + 1).padStart(2, '0')} / ${String(count).padStart(2, '0')}`; }, {passive:true});
+  });
+</script>

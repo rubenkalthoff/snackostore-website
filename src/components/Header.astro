@@ -1,0 +1,14 @@
+<header class="header">
+  <a href="/" class="brand" aria-label="Snackostore – Startseite"><img src="/images/logo.png" alt="Snackostore" width="180" height="80" /></a>
+  <a class="header-status" href="/#standort"><span class="status-dot"></span> Stockheim · 24/7 geöffnet</a>
+  <button class="menu-toggle" aria-controls="navigation" aria-expanded="false" type="button">Menü <span aria-hidden="true">☰</span></button>
+  <nav id="navigation" aria-label="Hauptnavigation"><a href="/#sortiment">Sortiment</a><a href="/#standort">Standort</a><a class="nav-contact" href="/#kontakt">Kontakt <span aria-hidden="true">↗</span></a></nav>
+</header>
+<script>
+  const button = document.querySelector<HTMLButtonElement>('.menu-toggle');
+  const nav = document.querySelector<HTMLElement>('#navigation');
+  function closeMenu() { button?.setAttribute('aria-expanded', 'false'); nav?.classList.remove('is-open'); }
+  button?.addEventListener('click', () => { const open = button.getAttribute('aria-expanded') !== 'true'; button.setAttribute('aria-expanded', String(open)); nav?.classList.toggle('is-open', open); });
+  nav?.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
+  document.addEventListener('keydown', event => { if(event.key === 'Escape' && button?.getAttribute('aria-expanded') === 'true') { closeMenu(); button.focus(); } });
+</script>

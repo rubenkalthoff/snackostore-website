@@ -1,0 +1,73 @@
+/* Dunkles Grundthema für alle Seiten und Inhaltsbereiche. */
+:root{--paper:#f4f3e9;--ink:#20211f;--muted:#c1c7b8;--line:#454c3d;background:#20211f;color:#f4f3e9;color-scheme:dark}
+body{background:#20211f;color:#f4f3e9}
+.header{background:#20211f;border-bottom-color:#41473a}
+.header nav a:hover{color:#efc466}
+.brand{color:#efc466}
+.text-link{border-color:#657052}
+.text-link:hover{border-color:#efc466}
+.button-gold{background:#efc466;color:#20211f}
+.button-dark{background:#efc466;color:#20211f}
+.button-dark:hover{background:#f8d58a}
+.button-outline{color:#f4f3e9;border-color:#7e8972}
+.hero-stage{background:#20211f}
+.stage-info{background:#efc466;color:#20211f}
+#sortiment:before{background:#242621}
+.location-section{background:#1c201b;color:#f4f3e9;border-top:1px solid #414a37;border-bottom:1px solid #414a37}
+.location-image{background:#2d3328;border-color:#49523f;box-shadow:9px 10px 0 #11170f}
+.location-stamp{background:#efc466;color:#20211f;border-color:#1c201b}
+.location-copy .eyebrow{color:#c1cbb6}
+.location-copy h2{color:#f4f3e9}
+.location-copy h2 span{color:#efc466}
+.location-copy>p:not(.eyebrow):not(.external-note){color:#c1cbb6}
+.location-details{border-color:#454f3b}
+.location-details>div{background:#2b3126;border-color:#48523d}
+.location-details dt{color:#c1cbb6}
+.location-details dd{color:#f4f3e9}
+.location-details strong{color:#efc466}
+.location-copy .button{background:#efc466;color:#20211f}
+.location-copy .external-note{color:#c1cbb6}
+.image-label{background:#20211f;color:#f4f3e9}
+.faq-section{position:relative;isolation:isolate}
+.faq-section:before{content:'';position:absolute;z-index:-1;inset:0 calc((min(1280px,100vw - 112px) - 100vw)/2);background:#20211f}
+.faq-section h2{color:#f4f3e9}
+.faq-section h2 span{color:#efc466}
+.faq-section>div>.brand-art{color:#20211f}
+.faq-list details,.faq-list details:nth-child(2),.faq-list details:nth-child(3),.faq-list details:nth-child(4){background:#2c3128;border-color:#49513f;color:#f4f3e9}
+.faq-list details[open]{background:#343c2c;border-color:#88936f}
+.faq-list summary:before{color:#d6dec9;opacity:1}
+.faq-list summary:after{background:#efc466;color:#20211f}
+.faq-list details p{color:#d1d8c7}
+.contact-section{background:#191d17;color:#f4f3e9;border-block:1px solid #414a37}
+.contact-sticker{border-color:#191d17}
+.contact-copy .button{background:#bbd2a4;color:#20211f}
+.contact-email{border-color:#647052}
+.form-panel{background:#2b3126;color:#f4f3e9;border-color:#efc466;box-shadow:10px 12px 0 #0e130c}
+.form-heading{border-color:#505a43}
+.form-intro,.form-privacy,.form-status{color:#c7d0bd}
+.form-panel input,.form-panel select,.form-panel textarea{background:#20261c;border-color:#626d52;color:#f4f3e9}
+.form-panel input::placeholder,.form-panel textarea::placeholder{color:#b9c2ae}
+.form-panel input:focus,.form-panel select:focus,.form-panel textarea:focus{background:#343c2c;border-color:#efc466}
+.form-panel select option{background:#20261c;color:#f4f3e9}
+.form-panel .button{background:#efc466;color:#20211f}
+.offer-section{background:#303727;border-color:#5b674a;box-shadow:0 8px 0 #141a10;color:#f4f3e9}
+.offer-copy h2 span{color:#efc466}
+.offer-copy>p{color:#cbd4bf}
+.offer-copy .eyebrow{color:#d4dfc6}
+.offer-art{color:#20211f}
+.offer-section .button{background:#efc466;color:#20211f}
+.footer{background:#181c15;color:#f4f3e9}
+.footer:before{background:#181c15}
+.footer-wordmark{color:#efc466}
+.footer-links a:hover{color:#efc466}
+.legal h1,.legal h2,.standalone h1{color:#f4f3e9}
+.standalone h1 span{color:#efc466}
+.legal p,.standalone p:not(.eyebrow){color:#cbd4bf}
+.notice{background:#423a24;color:#f1dfad;border-color:#efc466}
+mark{background:#514323;color:#ffe5a8}
+.skip-link{background:#efc466;color:#20211f}
+:focus-visible{outline-color:#efc466}
+/* Karten behalten ihre bewusst hellen, farbigen Flächen. */
+#sortiment .category{color-scheme:light}
+@media(max-width:1100px){.faq-section:before{inset-inline:-32px}}
+@media(max-width:760px){.faq-section:before{inset-inline:-20px}.location-image{box-shadow:6px 7px 0 #11170f}.form-panel{box-shadow:6px 8px 0 #0e130c}}

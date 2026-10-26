@@ -1,0 +1,12 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+import '../styles/brand.css';
+import '../styles/hero-stage.css';
+import '../styles/dark.css';
+interface Props { title: string; description?: string; noindex?: boolean; }
+const { title, description = 'Dein Automatenstore in Stockheim: Snacks, Getränke und mehr – täglich rund um die Uhr. Standort finden und Snackostore kontaktieren.', noindex = false } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+<!doctype html><html lang="de"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>{title}</title><meta name="description" content={description}/><meta name="theme-color" content="#20211f"/><link rel="canonical" href={canonical}/><link rel="icon" href="/favicon.svg" type="image/svg+xml"/>{noindex && <meta name="robots" content="noindex,follow"/>}<meta property="og:type" content="website"/><meta property="og:locale" content="de_DE"/><meta property="og:title" content={title}/><meta property="og:description" content={description}/><meta property="og:url" content={canonical}/><meta property="og:image" content={new URL('/images/store-social.jpg', Astro.site)}/></head><body><a class="skip-link" href="#inhalt">Zum Inhalt springen</a><Header/><main id="inhalt"><slot/></main><Footer/></body></html>

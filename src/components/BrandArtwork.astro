@@ -1,0 +1,9 @@
+---
+interface Props { kind: 'chat' | 'store' | 'spark'; }
+const { kind } = Astro.props;
+---
+<svg class={`brand-art brand-art-${kind}`} viewBox="0 0 260 220" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+{kind === 'chat' && <g stroke="currentColor" stroke-width="5" stroke-linejoin="round"><path d="M38 40h151v109H95l-37 30v-30H38Z" fill="#efc466" transform="rotate(-9 112 105)"/><path d="M113 99h109v83h-25v25l-32-25h-52Z" fill="#bbd2a4"/><path d="M139 127h58M139 145h38"/><circle cx="75" cy="87" r="5" fill="currentColor"/><circle cx="104" cy="83" r="5" fill="currentColor"/><circle cx="133" cy="79" r="5" fill="currentColor"/><path d="M210 43l13-17M225 66l18-3M26 170l-13 9"/></g>}
+{kind === 'store' && <g stroke="currentColor" stroke-width="5" stroke-linejoin="round"><rect x="65" y="27" width="135" height="180" rx="12" fill="#f7f6f0" transform="rotate(7 133 117)"/><path d="m91 55 73 9-11 88-73-9Z" fill="#bbd2a4"/><path d="m87 86 72 9M84 116l71 9M116 58l-11 88M141 61l-11 88"/><path d="m90 171 55 7M173 87l10 1M169 108l10 1M165 128l10 1"/><circle cx="166" cy="163" r="7" fill="#efc466"/><path d="m38 56-16-9M40 85l-20 4M219 165l18 9"/></g>}
+{kind === 'spark' && <path d="m130 20 17 58 54-29-29 54 58 17-58 17 29 54-54-29-17 58-17-58-54 29 29-54-58-17 58-17-29-54 54 29Z" fill="#efc466" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>}
+</svg>
