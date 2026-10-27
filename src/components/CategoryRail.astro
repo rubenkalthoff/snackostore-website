@@ -2,7 +2,7 @@
 import { categories } from '../data/site';
 import CategoryArtwork from './CategoryArtwork.astro';
 ---
-<div class="category-rail"><div class="rail-toolbar"><span>FÜNF KATEGORIEN. EIN STOPP.</span><div class="rail-buttons"><button type="button" data-rail-prev aria-label="Vorherige Produktkategorien" aria-controls="category-track">←</button><button type="button" data-rail-next aria-label="Weitere Produktkategorien" aria-controls="category-track">→</button></div></div><div class="category-track" id="category-track" tabindex="0" role="region" aria-label="Alle fünf Produktkategorien – horizontal scrollbar">{categories.map(category => <article class={`category category-${category.symbol}`}><div class="category-top"><span>{category.number} / 05</span><span class:list={["category-tag", {"age-badge": ["bottle","pack"].includes(category.symbol)}]}>{['bottle','pack'].includes(category.symbol) ? '18+' : 'IM STORE'}</span></div><div class="category-pictogram"><span class="category-orbit" aria-hidden="true"></span><CategoryArtwork name={category.symbol}/></div><h3>{category.title}</h3><p>{category.description}</p></article>)}</div><p class="rail-hint">Zur Seite scrollen oder wischen, um alle Kategorien zu entdecken. <span aria-hidden="true">↔</span></p></div>
+<div class="category-rail"><div class="rail-toolbar"><span>FÜNF KATEGORIEN. EIN STOPP.</span><div class="rail-buttons"><button type="button" data-rail-prev aria-label="Vorherige Produktkategorien" aria-controls="category-track">←</button><button type="button" data-rail-next aria-label="Weitere Produktkategorien" aria-controls="category-track">→</button></div></div><div class="category-track" id="category-track" tabindex="0" role="region" aria-label="Alle fünf Produktkategorien – horizontal scrollbar">{categories.map(category => <a href={`/sortiment/${category.slug}/`} class={`category category-${category.symbol}`} aria-label={`${category.title} – Produkte entdecken`}><div class="category-top"><span>{category.number} / 05</span><span class:list={["category-tag", {"age-badge": ["bottle","pack"].includes(category.symbol)}]}>{['bottle','pack'].includes(category.symbol) ? '18+' : 'IM STORE'}</span></div><div class="category-pictogram"><span class="category-orbit" aria-hidden="true"></span><CategoryArtwork name={category.symbol}/></div><h3>{category.title}</h3><p>{category.description}</p><span class="category-discover">Produkte entdecken <span aria-hidden="true">↗</span></span></a>)}</div><p class="rail-hint">Zur Seite scrollen oder wischen, um alle Kategorien zu entdecken. <span aria-hidden="true">↔</span></p></div>
 <script>
   document.querySelectorAll<HTMLElement>('.category-rail').forEach(rail => {
     const track = rail.querySelector<HTMLElement>('.category-track');
@@ -15,3 +15,10 @@ import CategoryArtwork from './CategoryArtwork.astro';
     track.addEventListener('scroll', update, {passive:true}); new ResizeObserver(update).observe(track); update();
   });
 </script>
+
+<style is:global>
+ .category-discover{display:flex;justify-content:space-between;gap:12px;margin-top:22px;padding-top:14px;border-top:1px solid #0003;font-size:11px;font-weight:800}.category-discover>span{font-size:16px}
+ #sortiment a.category{text-decoration:none}#sortiment a.category:focus-visible{outline:3px solid #fff;outline-offset:-5px}#sortiment a.category:hover .category-discover>span{transform:translate(2px,-2px)}
+
+@media(min-width:1101px){#sortiment .category{min-height:385px}#sortiment .category h3{font-size:24px}}
+</style>

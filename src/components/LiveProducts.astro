@@ -1,6 +1,10 @@
-<section class="live-products" aria-labelledby="live-products-title" data-live-products>
- <header><p class="eyebrow">DIE AKTUELLE AUSWAHL</p><h3 id="live-products-title">Produkte in Stockheim</h3><p>Preise und Bestandsstatus aus unserem Warenwirtschaftssystem.</p></header>
- <div class="product-controls" hidden><label>Suche<input type="search" data-product-search placeholder="Welches Produkt suchst du?" maxlength="200"/></label><label>Kategorie<select data-product-category><option value="">Alle Kategorien</option></select></label><label>Verfügbarkeit<select data-product-status><option value="">Alle Produkte</option><option value="available">Verfügbar</option><option value="sold_out">Ausverkauft</option><option value="unknown">Bestand unbekannt</option></select></label></div>
+---
+interface Props { category: string; }
+const { category: fixedCategory } = Astro.props;
+---
+<section class="live-products" aria-labelledby="live-products-title" data-live-products data-category={fixedCategory}>
+ <header><p class="eyebrow">DIE AKTUELLE AUSWAHL</p><h2 id="live-products-title">Entdecke die Auswahl.</h2><p>Aktuelle Preise und Verfügbarkeit in Stockheim.</p></header>
+ <div class="product-controls" hidden><label>Suche<input type="search" data-product-search placeholder="Welches Produkt suchst du?" maxlength="200"/></label><label>Unterkategorie<select data-product-category><option value="">Alle Unterkategorien</option></select></label><label>Verfügbarkeit<select data-product-status><option value="">Alle Produkte</option><option value="available">Verfügbar</option><option value="sold_out">Ausverkauft</option><option value="unknown">Bestand unbekannt</option></select></label></div>
  <p role="status" class="catalog-status" data-product-message>Die aktuelle Produktauswahl wird geladen…</p>
  <div class="product-groups" data-product-list></div>
  <button type="button" class="button button-outline" data-product-more hidden>Weitere Produkte anzeigen</button>
@@ -15,26 +19,27 @@
   const search=root.querySelector<HTMLInputElement>('[data-product-search]')!,category=root.querySelector<HTMLSelectElement>('[data-product-category]')!,status=root.querySelector<HTMLSelectElement>('[data-product-status]')!;
   const list=root.querySelector<HTMLElement>('[data-product-list]')!,message=root.querySelector<HTMLElement>('[data-product-message]')!,controls=root.querySelector<HTMLElement>('.product-controls')!;
   const more=root.querySelector<HTMLButtonElement>('[data-product-more]')!,retry=root.querySelector<HTMLButtonElement>('[data-product-retry]')!;
+  const fixedCategory=root.dataset.category??'';
   let products:Product[]=[],limit=36,updated='',lastSuccess=0,controller:AbortController|null=null;
   const element=(tag:string,text:string,className='')=>{const node=document.createElement(tag);node.textContent=text;if(className)node.className=className;return node;};
   function render(){
    const term=search.value.trim().toLocaleLowerCase('de-DE');
-   const matched=products.filter(p=>(!term||p.name.toLocaleLowerCase('de-DE').includes(term))&&(!category.value||(p.category??'Sonstiges')===category.value)&&(!status.value||p.availability===status.value));
+   const matched=products.filter(p=>(!term||p.name.toLocaleLowerCase('de-DE').includes(term))&&(!category.value||(p.subcategory??'Sonstiges')===category.value)&&(!status.value||p.availability===status.value));
    list.replaceChildren();const groups=new Map<string,HTMLElement>();
    for(const p of matched.slice(0,limit)){
-    const groupName=[p.category??'Sonstiges',p.subcategory].filter(Boolean).join(' · ');let group=groups.get(groupName);
-    if(!group){const section=element('section','');section.className='product-group';section.append(element('h4',groupName));group=element('div','','public-product-grid');section.append(group);list.append(section);groups.set(groupName,group);}
-    const card=element('article','','public-product');card.append(element('h5',p.name));card.append(element('p',money.format(p.priceGross),'public-product-price'));
+    const groupName=p.subcategory||'Weitere Produkte';let group=groups.get(groupName);
+    if(!group){const section=element('section','');section.className='product-group';section.append(element('h3',groupName));group=element('div','','public-product-grid');section.append(group);list.append(section);groups.set(groupName,group);}
+    const card=element('article','','public-product');card.append(element('h4',p.name));card.append(element('p',money.format(p.priceGross),'public-product-price'));
     card.append(element('p',p.availability==='available'?'Verfügbar':p.availability==='sold_out'?'Ausverkauft':'Bestand unbekannt','public-availability status-'+p.availability));group.append(card);
    }
-   message.textContent=matched.length?`${matched.length} ${matched.length===1?'Produkt':'Produkte'} · Datenstand ${updated}`:'Keine passenden Produkte in dieser Auswahl.';more.hidden=matched.length<=limit;
+   message.textContent=matched.length?`${matched.length} ${matched.length===1?'Produkt':'Produkte'} · Datenstand ${updated}`:(products.length?'Keine passenden Produkte für diese Suche.':'Aktuell zeigen wir in dieser Kategorie noch keine Produkte. Schau direkt im Store vorbei.');more.hidden=matched.length<=limit;
   }
   async function refresh(){
    controller?.abort();controller=new AbortController();const current=controller;retry.hidden=true;
    try{const response=await fetch('/api/products',{signal:current.signal});if(!response.ok)throw Error();const data=await response.json();if(current.signal.aborted)return;
     if(!Array.isArray(data.products)||!Number.isFinite(Date.parse(data.generatedAt))||Date.now()-Date.parse(data.generatedAt)>10*60*1000)throw Error();
-    products=data.products;updated=new Intl.DateTimeFormat('de-DE',{dateStyle:'short',timeStyle:'short',timeZone:'Europe/Berlin'}).format(new Date(data.generatedAt));lastSuccess=Date.now();
-    const selected=category.value;category.replaceChildren(new Option('Alle Kategorien',''));[...new Set(products.map(p=>p.category??'Sonstiges'))].sort((a,b)=>a.localeCompare(b,'de')).forEach(name=>category.append(new Option(name,name)));if([...category.options].some(o=>o.value===selected))category.value=selected;
+    products=data.products.filter((p:Product)=>p.category?.trim().toLocaleLowerCase('de-DE')===fixedCategory.trim().toLocaleLowerCase('de-DE'));updated=new Intl.DateTimeFormat('de-DE',{dateStyle:'short',timeStyle:'short',timeZone:'Europe/Berlin'}).format(new Date(data.generatedAt));lastSuccess=Date.now();
+    const selected=category.value;category.replaceChildren(new Option('Alle Unterkategorien',''));[...new Set(products.map(p=>p.subcategory??'Sonstiges'))].sort((a,b)=>a.localeCompare(b,'de')).forEach(name=>category.append(new Option(name,name)));if([...category.options].some(o=>o.value===selected))category.value=selected;
     controls.hidden=false;limit=36;render();
    }catch{if(current.signal.aborted)return;products=[];list.replaceChildren();controls.hidden=true;more.hidden=true;retry.hidden=false;message.textContent='Die aktuelle Produktauswahl ist vorübergehend nicht verfügbar. Bitte schaue direkt im Store nach.';}
   }
@@ -44,5 +49,5 @@
  });
 </script>
 <style is:global>
- .live-products{margin-top:3rem;padding:clamp(20px,3vw,36px);border:1px solid #535c49;border-radius:20px;background:#252a22}.live-products header h3{font-size:clamp(1.5rem,3vw,2.1rem);margin:.4rem 0}.live-products header>p:last-child{color:#c1c7b8;font-size:14px;line-height:1.6}.product-controls{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px;margin-top:24px}.product-controls[hidden]{display:none}.product-controls label{min-width:0;color:#c1c7b8;font-size:12px}.product-controls input,.product-controls select{display:block;width:100%;min-width:0;min-height:46px;margin-top:6px;border:1px solid #59614e;border-radius:10px;background:#20251d;color:#f4f3e9;padding:10px 12px;font:inherit;font-size:16px}.catalog-status{font-size:12px;color:#c1c7b8;margin:20px 0}.product-group{margin-top:24px}.product-group h4{font-size:16px;color:#efc466;margin:0 0 12px}.public-product-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.public-product{min-width:0;padding:18px;border:1px solid #444d3c;border-radius:12px;background:#20251d}.public-product h5{font-size:15px;line-height:1.45;margin:0;overflow-wrap:anywhere}.public-product-price{font-size:19px;font-weight:700;margin:12px 0 8px}.public-availability{display:inline-block;font-size:11px;margin:0;padding:4px 8px;border:1px solid #68765d;border-radius:6px;color:#c5d3b9}.status-sold_out{color:#c6a6a0;border-color:#7b605b}.status-unknown{color:#c1c7b8;border-color:#59614e}.catalog-note{font-size:11px!important;color:#aeb7a2;line-height:1.6;margin:20px 0 0}.live-products>.button{margin-top:20px}.live-products button[hidden]{display:none}@media(max-width:760px){.product-controls{grid-template-columns:1fr}.public-product-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.public-product{padding:14px}}@media(max-width:420px){.public-product-grid{grid-template-columns:1fr}}
+ .live-products{margin-top:3rem;padding:clamp(20px,3vw,36px);border:1px solid #535c49;border-radius:20px;background:#252a22}.live-products header h2{font-size:clamp(1.5rem,3vw,2.1rem);margin:.4rem 0}.live-products header>p:last-child{color:#c1c7b8;font-size:14px;line-height:1.6}.product-controls{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px;margin-top:24px}.product-controls[hidden]{display:none}.product-controls label{min-width:0;color:#c1c7b8;font-size:12px}.product-controls input,.product-controls select{display:block;width:100%;min-width:0;min-height:46px;margin-top:6px;border:1px solid #59614e;border-radius:10px;background:#20251d;color:#f4f3e9;padding:10px 12px;font:inherit;font-size:16px}.catalog-status{font-size:12px;color:#c1c7b8;margin:20px 0}.product-group{margin-top:24px}.product-group h3{font-size:16px;color:#efc466;margin:0 0 12px}.public-product-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.public-product{min-width:0;padding:18px;border:1px solid #444d3c;border-radius:12px;background:#20251d}.public-product h4{font-size:15px;line-height:1.45;margin:0;overflow-wrap:anywhere}.public-product-price{font-size:19px;font-weight:700;margin:12px 0 8px}.public-availability{display:inline-block;font-size:11px;margin:0;padding:4px 8px;border:1px solid #68765d;border-radius:6px;color:#c5d3b9}.status-sold_out{color:#c6a6a0;border-color:#7b605b}.status-unknown{color:#c1c7b8;border-color:#59614e}.catalog-note{font-size:11px!important;color:#aeb7a2;line-height:1.6;margin:20px 0 0}.live-products>.button{margin-top:20px}.live-products button[hidden]{display:none}@media(max-width:760px){.product-controls{grid-template-columns:1fr}.public-product-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.public-product{padding:14px}}@media(max-width:420px){.public-product-grid{grid-template-columns:1fr}}
 </style>

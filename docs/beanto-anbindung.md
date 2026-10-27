@@ -85,3 +85,20 @@ Website-Kategorien können in Beanto separat vom Artikelstamm gepflegt werden. E
 - Website: Astro-Check und Produktionsbuild; Netlify-Funktion auf Datenprojektion, Fehler, HTTPS, Redirect-Verbot, Standortbegrenzung und Fünf-Minuten-Cache geprüft.
 - Lokale Browserprüfung mit drei synthetischen Produkten: Datenanzeige, Karten-Styles, Suche und Verfügbarkeitsfilter funktionieren. Browser-Screenshotaufnahme war in der Testumgebung nicht verfügbar.
 - Keine echten Produktfreigaben verändert, keine echten Zugangsschlüssel erstellt, noch kein Live-Abruf und kein Push/Deploy.
+
+
+## Produktanzeige über die Kategorienbanner (27.10.2026)
+
+Die Startseite zeigt nur die fünf Kategorienbanner. Jedes Banner führt auf eine eigene Seite unter `/sortiment/<kategorie>/`. Die Produktliste filtert dort die weiterhin unveränderte öffentliche API nach der Website-Kategorie aus Beanto. Preise und Bestandsstatus kommen aus derselben Schnittstelle wie bisher. Nicht freigegebene Produkte werden nicht zusätzlich veröffentlicht.
+
+Neue Produkte und Änderungen erscheinen ohne Website-Build, wenn sie in Beanto freigegeben und einer der fünf vorhandenen Website-Kategorien zugeordnet sind. Der bestehende Fünf-Minuten-Cache und der automatische Abruf gelten weiter. Ganz neue Website-Kategorien brauchen eine Ergänzung in `src/data/site.ts`; ohne passende Kategorie werden Produkte nicht geraten oder einer beliebigen Gruppe zugeordnet.
+
+Innerhalb einer Kategorie gibt es Suche, Unterkategorienfilter, Bestandsfilter und Nachladen. Leere Kategorien zeigen einen eigenen Hinweis. Das API-Format enthält derzeit keine Produktbilder; es werden keine Bilder erfunden oder fremde Bilder zugeordnet.
+
+Für die lokale Vorschau mit den bereits öffentlichen Live-Daten:
+
+1. `npm.cmd run dev` starten.
+2. In einem zweiten Terminal `node scripts/preview-catalog.mjs` starten.
+3. `http://127.0.0.1:4323/` öffnen. Der lokale Proxy akzeptiert nur GET/HEAD und ruft ohne Zugangsschlüssel ausschließlich den öffentlichen Produktkatalog ab. Für vollständige lokale Backendtests weiterhin Netlify Dev verwenden.
+
+Browserprüfung mit öffentlichen Live-Daten: 62 Snacks korrekt gefiltert, sechs ausverkaufte Snacks, erfolglose Suche zeigt Leerzustand, Nachladen von 36 auf 62, Kategorienwechsel und leere Alkohol-Kategorie geprüft. Die Startseite führt per Banner zur passenden Seite.
