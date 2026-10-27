@@ -1,6 +1,6 @@
 # Snackostore
 
-Lokale Astro-/TypeScript-Website für den Automatenstore in Stockheim. Statischer Build für Netlify, keine Datenbank erforderlich. Alle Originalbilder bleiben im Ordner `material` erhalten. Veröffentlichte, verkleinerte Bilder liegen in `public/images`.
+Lokale Astro-/TypeScript-Website für den Automatenstore in Stockheim. Statischer Build für Netlify mit serverseitiger Beanto-Produktanzeige über eine Netlify Function. Alle Originalbilder bleiben im Ordner `material` erhalten. Veröffentlichte, verkleinerte Bilder liegen in `public/images`.
 
 ## In VS Code öffnen und starten
 
@@ -23,7 +23,7 @@ Unter macOS/Linux genügt `npm` statt `npm.cmd`.
 - `public/images`: Optimierte Fotos und Logo. Originale nicht ungeprüft durch große Dateien ersetzen.
 - `public/fonts`: Lokal gespeicherte Manrope-Schrift samt OFL-Lizenz.
 
-Für einen späteren Datenimport zuerst das Exportformat deiner bestehenden Datenbank klären. Ein Import kann die zentralen Daten beim Build erzeugen. Keine Datenbank-Zugangsdaten im Browser oder Git speichern. Supabase ist noch nicht integriert und aktuell nicht nötig.
+Die Produktanzeige lädt freigegebene Beanto-Daten über `/api/products`. Einrichtung und serverseitige Umgebungsvariablen: [Beanto-Anbindung](docs/beanto-anbindung.md). Keine Datenbank-Zugangsdaten oder Website-Schlüssel im Browser oder Git speichern. `astro dev` allein führt die Netlify Function nicht aus.
 
 ## Prüfen und Produktionsdateien erzeugen
 
