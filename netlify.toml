@@ -11,6 +11,26 @@
     X-Frame-Options = "DENY"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
 [[redirects]]
+  from = "https://snackostore.com/*"
+  to = "https://snackostore.de/:splat"
+  status = 301
+  force = true
+[[redirects]]
+  from = "https://www.snackostore.com/*"
+  to = "https://snackostore.de/:splat"
+  status = 301
+  force = true
+[[redirects]]
+  from = "https://snackostore.eu/*"
+  to = "https://snackostore.de/:splat"
+  status = 301
+  force = true
+[[redirects]]
+  from = "https://www.snackostore.eu/*"
+  to = "https://snackostore.de/:splat"
+  status = 301
+  force = true
+[[redirects]]
   from = "/standorte"
   to = "/#standort"
   status = 301
