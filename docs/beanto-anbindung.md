@@ -61,11 +61,11 @@ Die Website-Funktion unter `/api/products` ruft Beanto serverseitig auf, prüft 
 - Fehlender Preis und null Euro werden nicht veröffentlicht, selbst wenn ein Artikel versehentlich ausgewählt blieb.
 - Ein nicht ausgewählter Artikel und Produkte anderer Standorte dürfen nicht im Ergebnis sein.
 - Nach dem Website-Abruf zeigt Beanto den letzten erfolgreichen Datenabruf und die Artikelzahl. `Datenfreigabe prüfen` selbst zählt nicht als externer Website-Abruf.
-- Die öffentliche Website speichert erfolgreiche Antworten für maximal fünf Minuten zwischen. Danach werden Preis-, Freigabe- und Bestandsänderungen neu geladen. Fehler werden nicht zwischengespeichert oder als verfügbar dargestellt.
+- Die öffentliche Website speichert erfolgreiche Antworten im Browser und Netlify-CDN für zwölf Stunden zwischen. Danach werden Preis-, Freigabe- und Bestandsänderungen beim nächsten Abruf neu geladen. Das CDN darf während der Erneuerung bis zu 60 Sekunden die bisherige Antwort liefern. Es gibt keinen Zeitplan-Job: Aktualisierungen erfolgen bei Bedarf etwa zweimal täglich je Cache. Offene Tabs prüfen ebenfalls erst nach zwölf Stunden erneut. Der sichtbare Datenstand bleibt angezeigt. Fehler werden nicht zwischengespeichert oder als verfügbar dargestellt.
 
 ## Zugang sperren oder erneuern
 
-`Zugang sperren` macht den Schlüssel bei Beanto sofort ungültig. Bereits öffentlich zwischengespeicherte Antworten können noch bis zu fünf Minuten sichtbar sein. `Schlüssel erneuern` ersetzt den bisherigen Schlüssel; den neuen Wert anschließend in der Snackostore-Netlify-Website eintragen und erneut deployen.
+`Zugang sperren` macht den Schlüssel bei Beanto sofort ungültig. Bereits öffentlich zwischengespeicherte Antworten können noch bis zu zwölf Stunden sichtbar sein. `Schlüssel erneuern` ersetzt den bisherigen Schlüssel; den neuen Wert anschließend in der Snackostore-Netlify-Website eintragen und erneut deployen.
 
 Ein deaktiviertes oder nicht mehr als Admin berechtigtes Verbindungskonto kann keine Daten mehr über seinen Schlüssel ausgeben. Die Produktausgabe ist serverseitig auf 60 authentifizierte Abrufe je Minute und Verbindung begrenzt. Die öffentliche Website nutzt den CDN-Cache zur Entlastung.
 

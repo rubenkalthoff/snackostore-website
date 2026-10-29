@@ -13,7 +13,10 @@ const { category: fixedCategory } = Astro.props;
  <noscript><p>Bitte JavaScript aktivieren, um die aktuelle Produktauswahl zu laden. Die Auswahl und Preise findest du auch direkt im Store.</p></noscript>
 </section>
 <script>
- type Product={beaId:string;name:string;category:string|null;subcategory:string|null;priceGross:number;currency:string;availability:string};
+ import productImages from '../data/product-images.json';
+ const imageMap:Record<string,string>=productImages;
+ type Product={beaId:string;name:string;category:string|null;subcategory:string|null;priceGross:number;currency:string;availability:string;imageUrl?:string|null};
+ const refreshInterval=12*60*60*1000;
  const money=new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'});
  document.querySelectorAll<HTMLElement>('[data-live-products]').forEach(root=>{
   const search=root.querySelector<HTMLInputElement>('[data-product-search]')!,category=root.querySelector<HTMLSelectElement>('[data-product-category]')!,status=root.querySelector<HTMLSelectElement>('[data-product-status]')!;
@@ -29,15 +32,24 @@ const { category: fixedCategory } = Astro.props;
    for(const p of matched.slice(0,limit)){
     const groupName=p.subcategory||'Weitere Produkte';let group=groups.get(groupName);
     if(!group){const section=element('section','');section.className='product-group';section.append(element('h3',groupName));group=element('div','','public-product-grid');section.append(group);list.append(section);groups.set(groupName,group);}
-    const card=element('article','','public-product');card.append(element('h4',p.name));card.append(element('p',money.format(p.priceGross),'public-product-price'));
+    const card=element('article','','public-product');
+    const media=element('div','','product-media');
+    const placeholder=element('div','','product-image-placeholder');placeholder.setAttribute('aria-hidden','true');
+    placeholder.append(element('span','▧','product-placeholder-symbol'),element('span','Produktbild folgt'));media.append(placeholder);
+    const imageUrl=p.imageUrl??imageMap[p.beaId];
+    if(imageUrl&&(imageUrl.startsWith('/images/products/')||/^https:\/\/[-a-z0-9]+\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[0-9a-f-]{36}\/[0-9a-f-]{36}\.webp$/.test(imageUrl))){const img=document.createElement('img');img.alt=p.name;img.loading='lazy';img.decoding='async';img.width=480;img.height=480;img.style.opacity='0';img.addEventListener('load',()=>{img.style.opacity='1';placeholder.hidden=true;});img.addEventListener('error',()=>{img.remove();placeholder.hidden=false;});img.src=imageUrl;media.append(img);}
+    if(['Alkoholische Getränke','Tabakprodukte'].includes(fixedCategory)){const badge=element('span','18+','product-age-badge');badge.setAttribute('aria-label','Ab 18 Jahren');media.append(badge);}
+    card.append(media);card.append(element('h4',p.name));card.append(element('p',money.format(p.priceGross),'public-product-price'));
     card.append(element('p',p.availability==='available'?'Verfügbar':p.availability==='sold_out'?'Ausverkauft':'Bestand unbekannt','public-availability status-'+p.availability));group.append(card);
    }
-   message.textContent=matched.length?`${matched.length} ${matched.length===1?'Produkt':'Produkte'} · Datenstand ${updated}`:(products.length?'Keine passenden Produkte für diese Suche.':'Aktuell zeigen wir in dieser Kategorie noch keine Produkte. Schau direkt im Store vorbei.');more.hidden=matched.length<=limit;
+   message.textContent=matched.length?`${matched.length} ${matched.length===1?'Produkt':'Produkte'} · Stand ${updated} · Aktualisierung ca. zweimal täglich`:(products.length?'Keine passenden Produkte für diese Suche.':'Aktuell zeigen wir in dieser Kategorie noch keine Produkte. Schau direkt im Store vorbei.');more.hidden=matched.length<=limit;
   }
+  document.addEventListener('age-confirmed',()=>void refresh());
   async function refresh(){
+   if(root.closest('[data-restricted-content]')&&document.documentElement.dataset.ageConfirmed!=='true')return;
    controller?.abort();controller=new AbortController();const current=controller;retry.hidden=true;
    try{const response=await fetch('/api/products',{signal:current.signal});if(!response.ok)throw Error();const data=await response.json();if(current.signal.aborted)return;
-    if(!Array.isArray(data.products)||!Number.isFinite(Date.parse(data.generatedAt))||Date.now()-Date.parse(data.generatedAt)>10*60*1000)throw Error();
+    if(!Array.isArray(data.products)||!Number.isFinite(Date.parse(data.generatedAt))||Date.now()-Date.parse(data.generatedAt)>24*60*60*1000||Date.parse(data.generatedAt)>Date.now()+5*60*1000)throw Error();
     products=data.products.filter((p:Product)=>p.category?.trim().toLocaleLowerCase('de-DE')===fixedCategory.trim().toLocaleLowerCase('de-DE'));updated=new Intl.DateTimeFormat('de-DE',{dateStyle:'short',timeStyle:'short',timeZone:'Europe/Berlin'}).format(new Date(data.generatedAt));lastSuccess=Date.now();
     const selected=category.value;category.replaceChildren(new Option('Alle Unterkategorien',''));[...new Set(products.map(p=>p.subcategory??'Sonstiges'))].sort((a,b)=>a.localeCompare(b,'de')).forEach(name=>category.append(new Option(name,name)));if([...category.options].some(o=>o.value===selected))category.value=selected;
     controls.hidden=false;limit=36;render();
@@ -45,9 +57,10 @@ const { category: fixedCategory } = Astro.props;
   }
   for(const input of [search,category,status])input.addEventListener('input',()=>{limit=36;render();});
   more.addEventListener('click',()=>{limit+=36;render();});retry.addEventListener('click',()=>void refresh());
-  void refresh();setInterval(()=>{if(!document.hidden)void refresh();},300000);document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-lastSuccess>=300000)void refresh();});
+  void refresh();setInterval(()=>{if(!document.hidden)void refresh();},refreshInterval);document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-lastSuccess>=refreshInterval)void refresh();});
  });
 </script>
 <style is:global>
+ .product-media{position:relative;aspect-ratio:1;display:grid;place-items:center;margin-bottom:18px;border-radius:9px;background:#f3f0e6;overflow:hidden}.product-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:18px}.product-image-placeholder{display:grid;justify-items:center;gap:10px;color:#676b60;font-size:11px;letter-spacing:.04em}.product-placeholder-symbol{font-size:48px;line-height:1;color:#9a9e90}.product-media [hidden]{display:none}.product-age-badge{position:absolute;right:10px;top:10px;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:#bd2929;color:white;font-size:17px;font-weight:800;box-shadow:0 2px 8px #0003;border:2px solid white}.public-availability.status-available{display:inline-flex;align-items:center;gap:7px;background:#b9ed9a;color:#193512;border:1px solid #b9ed9a;font-size:13px;font-weight:800;padding:7px 11px}.status-available:before{content:'✓';font-size:14px}.public-availability.status-sold_out,.public-availability.status-unknown{font-size:12px;padding:7px 10px}
  .live-products{margin-top:3rem;padding:clamp(20px,3vw,36px);border:1px solid #535c49;border-radius:20px;background:#252a22}.live-products header h2{font-size:clamp(1.5rem,3vw,2.1rem);margin:.4rem 0}.live-products header>p:last-child{color:#c1c7b8;font-size:14px;line-height:1.6}.product-controls{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px;margin-top:24px}.product-controls[hidden]{display:none}.product-controls label{min-width:0;color:#c1c7b8;font-size:12px}.product-controls input,.product-controls select{display:block;width:100%;min-width:0;min-height:46px;margin-top:6px;border:1px solid #59614e;border-radius:10px;background:#20251d;color:#f4f3e9;padding:10px 12px;font:inherit;font-size:16px}.catalog-status{font-size:12px;color:#c1c7b8;margin:20px 0}.product-group{margin-top:24px}.product-group h3{font-size:16px;color:#efc466;margin:0 0 12px}.public-product-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.public-product{min-width:0;padding:18px;border:1px solid #444d3c;border-radius:12px;background:#20251d}.public-product h4{font-size:15px;line-height:1.45;margin:0;overflow-wrap:anywhere}.public-product-price{font-size:19px;font-weight:700;margin:12px 0 8px}.public-availability{display:inline-block;font-size:11px;margin:0;padding:4px 8px;border:1px solid #68765d;border-radius:6px;color:#c5d3b9}.status-sold_out{color:#c6a6a0;border-color:#7b605b}.status-unknown{color:#c1c7b8;border-color:#59614e}.catalog-note{font-size:11px!important;color:#aeb7a2;line-height:1.6;margin:20px 0 0}.live-products>.button{margin-top:20px}.live-products button[hidden]{display:none}@media(max-width:760px){.product-controls{grid-template-columns:1fr}.public-product-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.public-product{padding:14px}}@media(max-width:420px){.public-product-grid{grid-template-columns:1fr}}
 </style>

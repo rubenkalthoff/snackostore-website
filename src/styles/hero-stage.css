@@ -1,5 +1,5 @@
 .hero-stage{position:relative;isolation:isolate;min-height:650px;height:min(760px,calc(100svh - 155px));background:#20211f;color:#f7f6f0;overflow:hidden}
-.hero-stage .store-gallery{position:absolute;inset:0;min-height:0;height:auto;border-radius:0;box-shadow:none;margin:0;z-index:-1}
+.hero-stage .store-gallery{position:absolute;inset:0;min-height:0;max-height:none;height:auto;border-radius:0;box-shadow:none;margin:0;z-index:-1}
 .hero-stage .gallery-track{border-radius:0}
 .hero-stage .gallery-slide img{object-position:50% 55%}
 .hero-stage .gallery-slide:after{inset:0;background:linear-gradient(90deg,#11160fe8 0%,#11160fa6 30%,#11160f36 60%,#11160f10 100%)}
@@ -29,3 +29,13 @@
 /* Kleine Telefone und größere Schrift: Titel und Inhalt dürfen mitwachsen. */
 @media(max-width:760px){.hero-stage{height:auto;min-height:660px}.stage-content{min-height:660px;height:auto;padding-bottom:110px}.stage-copy h1{font-size:clamp(3.1rem,14.5vw,6.5rem)}.hero-stage .gallery-controls button{width:44px;height:44px}.hero-stage .gallery-controls{width:190px}.form-panel input,.form-panel select,.form-panel textarea{font-size:16px}}
 @media(max-width:400px){.contact-sticker{position:static;margin:24px 0 18px}.contact-copy>p:not(.eyebrow){padding-right:0}}
+
+.stage-actions{display:flex;align-items:center;gap:26px;flex-wrap:wrap}.stage-products{display:inline-flex;align-items:center;gap:12px;color:#fff;font-size:13px;font-weight:750;text-decoration:none;min-height:54px}.stage-products-arrow{display:grid;place-items:center;width:48px;height:48px;border:1px solid #efc466;border-radius:50%;color:#efc466;background:#20211f70;transition:background .2s,color .2s}.stage-products-arrow svg{width:25px;height:25px;animation:product-arrow-nudge 2.5s ease-in-out 3}.stage-products-caption{display:block;font-size:10px;font-weight:400;color:#deded0;margin-top:4px}.stage-products:hover .stage-products-arrow{background:#efc466;color:#20211f}.stage-products:focus-visible{outline:3px solid #efc466;outline-offset:6px;border-radius:6px}@keyframes product-arrow-nudge{0%,70%,100%{transform:translateY(0)}35%{transform:translateY(4px)}}@media(prefers-reduced-motion:reduce){.stage-products-arrow svg{animation:none}}@media(max-width:420px){.stage-actions{gap:16px}.stage-products{font-size:12px}.stage-products-arrow{width:42px;height:42px}}
+
+/* Mobile Galerie: dezente Steuerung am Bildrand, ausreichend große Touchflächen. */
+@media(max-width:760px){
+ .hero-stage .gallery-controls{right:12px;bottom:12px;width:auto;gap:2px;padding:0;border:0;border-radius:0;background:transparent;backdrop-filter:none;box-shadow:none}
+ .hero-stage .gallery-controls button{width:44px;height:44px;border:0;background:transparent;color:#fff}
+ .hero-stage .gallery-controls button svg{width:17px;height:17px}
+ .hero-stage .gallery-counter{font-size:9px;padding-inline:3px;text-shadow:0 1px 4px #000}
+}
